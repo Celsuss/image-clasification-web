@@ -1,0 +1,50 @@
+{% extends "bootstrap/base.html" %}
+{% block title %}Flask-Upload{% endblock %}
+ 
+{% block content %}
+<div class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    {% if category in ["success","danger"] %}
+    <div class="alert alert-{{ category }}">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+        {{ message }}
+    </div>
+    {% endif %}
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+    <form method="post" enctype="multipart/form-data">
+        <input id="lefile" type="file" style="display:none" name="selectfile">
+        <div class="input-append form-inline">
+            <input id="photoCover" class="input-large form-control" type="text"
+                   style="height:34px;width:60vw;border:2px #337ab7 solid"
+                   placeholder="choose image">
+            <a class="btn btn-primary" onclick="$('input[id=lefile]').click();">scan</a>
+            <button type="submit" class="btn btn-primary">submit</button>
+        </div>
+ 
+ 
+    </form>
+    {% if imagename %}
+    <img src="{{ url_for('static',filename='uploads/'+imagename) }}" width="300px" height="300px"/>
+    {% endif %}
+    <div>
+ 
+        {% if predvalue %}
+    predicted_probability：{{predvalue}}
+    {% endif %}
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+{{ super() }}
+<script type="text/javascript">
+    $('input[id=lefile]').change(function () {
+        $('#photoCover').val($(this).val());
+    });
+ 
+    $("#photoCover").attr('autocomplete', 'off')
+</script>
+{% endblock %}
