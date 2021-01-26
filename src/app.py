@@ -1,43 +1,17 @@
 from flask import Flask, render_template, request, flash, redirect, url_for, make_response
 from flask_bootstrap import Bootstrap
-import os
+import os, time
 import numpy as np
-
 import tensorflow as tf
 
-from tensorflow.keras.applications.resnet50 import ResNet50
-from tensorflow.keras.preprocessing import image
-from tensorflow.keras.applications.imagenet_utils import preprocess_input, decode_predictions
+from tools.download_model import download
+from tools.inference import classify, classify_with_quantified
 
-model = ResNet50(weights="imagenet")
-# print(model.summary())
+res_net, mobile_net, x_ception = download()
 
-def yuce(uploadpath):
-    image_path = uploadpath
+model = res_net
 
-    img = image.load_img(image_path, target_size=(224, 224))
-    img_arr = image.img_to_array(img)
-    # img = Image.open(image_path)
-    # img = img.resize((28, 28), Image.ANTIALIAS)  
-    # img_arr = np.array(img.convert('L'))
- 
-    # for i in range(28):  
-    #     for j in range(28):
-    #         if img_arr[i][j] < 200:
-    #             img_arr[i][j] = 255  #
-    #         else:
-    #             img_arr[i][j] = 0  
- 
-    # img_arr = img_arr / 255.0  
-    x_predict = np.expand_dims(img_arr, axis=0)
-    x_predict = preprocess_input(x_predict)
-
-    result = model.predict(x_predict)  
-    pred = decode_predictions(result)
-    # pred = np.argmax(result, axis=1) 
-
-    return pred 
-
+supported_types = ['jpg', 'png', 'tif'] 
 
 app = Flask(__name__) 
 bootstrap = Bootstrap(app)
@@ -63,18 +37,18 @@ def process():
             os.makedirs(uploadDir) 
         if f:
             filename = f.filename
-            types = ['jpg', 'png', 'tif'] 
-            if filename.split('.')[-1] in types:
+            if filename.split('.')[-1] in supported_types:
                 uploadpath = address(filename) 
                 f.save(uploadpath) 
  
-                pred = yuce(uploadpath) 
-                flash('Upload Load Successful!', 'success') 
-                return render_template('index.html', imagename=filename, predvalue=pred) 
+                pred, t = classify(uploadpath, model) 
+                flash('Upload Load Successful!', 'SUCESS') 
+                return render_template('index.html', imagename=filename, predvalue=pred, used_time="{} seconds".format(t)) 
             else:
-                flash('Unknown Types!', 'danger')
+                flash('Unsupported File Types!', 'FAIL')
         else:
-            flash('No File Selected.', 'danger')
+            flash('No File Selected.', 'FAIL')
+
     return index()
  
  
