@@ -18,14 +18,12 @@ inpFile.addEventListener("change", function() {
             previewImage.setAttribute("src", this.result);
 
             const userAction = async () => {
-                const response = await fetch('localhost', {
-                method: 'POST',
-                body: this.result, // string or object
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-                });
+                const response = await fetch('http://127.0.0.1:5000/test');
+                console.log("waiting");
+                const myJson = await response.json();
+                console.log(myJson);
             }
+            userAction();
         });
 
         reader.readAsDataURL(file);
@@ -38,12 +36,3 @@ inpFile.addEventListener("change", function() {
 
     console.log(file)
 });
-
-// Rest API communication
-fetch('/')
-      .then(function (response) {
-          return response.json();
-      }).then(function (text) {
-          console.log('GET response:');
-          console.log(text.greeting); 
-      });

@@ -9,16 +9,16 @@ from tools.inference import classify, classify_with_quantified
 
 res_net, mobile_net, x_ception = download()
 
-# model = res_net
+model = res_net
 
-interpreter = tf.lite.Interpreter(model_path="./tflite_models/xception_int8.tflite")
-interpreter.allocate_tensors()
+# interpreter = tf.lite.Interpreter(model_path="./tflite_models/xception_int8.tflite")
+# interpreter.allocate_tensors()
 
 supported_types = ['jpg', 'png', 'tif'] 
 
 app = Flask(__name__) 
 bootstrap = Bootstrap(app)
-app.config['SECRET_KEY'] = os.urandom(24)
+# app.config['SECRET_KEY'] = os.urandom(24)
  
 basedir = os.path.abspath(os.path.dirname(__file__))
 uploadDir = os.path.join(basedir, 'static/uploads') 
@@ -32,6 +32,10 @@ def address(filename):
 def index():
     return render_template('index.html')
 
+@app.route('/test')
+def test():
+    return {'Value' : 'Hello World'}
+
 @app.route('/', methods=['POST', 'GET'])
 def process():
     if request.method == 'POST':
@@ -44,7 +48,7 @@ def process():
                 uploadpath = address(filename) 
                 f.save(uploadpath) 
  
-                pred, t = classify_with_quantified(uploadpath, interpreter) # classify(uploadpath, model) 
+                pred, t = classify(uploadpath, model)  # classify_with_quantified(uploadpath, interpreter) # classify(uploadpath, model) 
                 flash('Upload Load Successful!', 'SUCESS') 
                 return render_template('index.html', imagename=filename, predvalue=pred, used_time="{} seconds".format(t)) 
             else:
