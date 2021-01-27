@@ -7,6 +7,8 @@ import tensorflow as tf
 from tools.download_model import download
 from tools.inference import classify, classify_with_quantified
 
+from flask_cors import CORS
+
 res_net, mobile_net, x_ception = download()
 
 model = res_net
@@ -17,6 +19,10 @@ model = res_net
 supported_types = ['jpg', 'png', 'tif'] 
 
 app = Flask(__name__) 
+
+cors = CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
+
 bootstrap = Bootstrap(app)
 # app.config['SECRET_KEY'] = os.urandom(24)
  
@@ -32,7 +38,7 @@ def address(filename):
 def index():
     return render_template('index.html')
 
-@app.route('/test')
+@app.route('/test', methods=['GET'])
 def test():
     return {'Value' : 'Hello World'}
 

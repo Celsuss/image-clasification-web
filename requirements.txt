@@ -1,4 +1,7 @@
-tensorflow==2.4.1
+flatbuffers==1.12
+Flask_Cors==3.0.10
 Flask==1.1.2
 numpy==1.19.5
 Flask_Bootstrap==3.3.7.1
+tensorflow==2.4.1
+tensorflow_datasets==4.2.0

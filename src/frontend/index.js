@@ -18,7 +18,14 @@ inpFile.addEventListener("change", function() {
             previewImage.setAttribute("src", this.result);
 
             const userAction = async () => {
-                const response = await fetch('http://127.0.0.1:5000/test');
+                const response = await fetch('http://127.0.0.1:5000/test',{
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'credentials': "include",
+                        'Origin': 'http://localhost:5500/'
+                      }
+                });
                 console.log("waiting");
                 const myJson = await response.json();
                 console.log(myJson);
