@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=chrome">
+    <title>Test</title>
+
+    <style>
+        .image_preview {
+            width: 300px;
+            min-height: 100px;
+            border: 2px solid #dddddd;
+            margin-top: 14px;
+
+            /* Default text */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #cccccc;
+        }
+
+        .image_preview_image{
+            display: none;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <h1>Image classification</h1>
+    <input type="file" name="inputFile" id="inputFile">
+    <div class="image_preview" id="imagePreview">
+        <img src="" alt="Image Preview" class="image_preview_image">
+        <span class="image_preview_default_text">Image Preview</span>
+    </div>
+
+    <script src="index.js"></script>
+    
+</body>
+</html>
