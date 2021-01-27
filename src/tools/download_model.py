@@ -9,4 +9,4 @@ def download():
     mobile_net = MobileNet(weights="imagenet")
     x_ception = Xception(weights="imagenet")
 
-    return res_net, mobile_net, x_ception
+    return [res_net, mobile_net, x_ception]
