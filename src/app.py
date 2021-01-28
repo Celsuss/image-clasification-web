@@ -9,6 +9,10 @@ from tools.inference import classify, classify_with_quantified
 
 from flask_cors import CORS
 
+from PIL import Image
+import json
+
+
 res_net, mobile_net, x_ception = download()
 
 model = res_net
@@ -44,8 +48,12 @@ def test():
 
 @app.route('/testPost', methods=['POST'])
 def testPost():
-    req = request.get_json()
-    print(req)
+    print('POST')
+
+    f = request.files['file']
+    uploadpath = address(f.filename) 
+    f.save(uploadpath)
+
     res = make_response(jsonify({"message": "OK"}), 200)
     return res
 

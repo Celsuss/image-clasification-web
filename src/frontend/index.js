@@ -1,12 +1,12 @@
 // Image uploading
 
-const inpFile = document.getElementById("inputFile")
-const previewContainer = document.getElementById("imagePreview")
-const previewImage = previewContainer.querySelector(".image_preview_image")
-const previewDefaultText = previewContainer.querySelector(".image_preview_default_text")
+let inpFile = document.getElementById("inputFile");
+const previewContainer = document.getElementById("imagePreview");
+const previewImage = previewContainer.querySelector(".image_preview_image");
+const previewDefaultText = previewContainer.querySelector(".image_preview_default_text");
 
 inpFile.addEventListener("change", function() {
-    const file = this.files[0];
+    let file = this.files[0];
 
     if(file){
         const reader = new FileReader();
@@ -17,23 +17,29 @@ inpFile.addEventListener("change", function() {
         reader.addEventListener("load", function(){
             previewImage.setAttribute("src", this.result);
 
+            let data = new FormData();
+            data.append('file', file);
+
             const postImage = async() => {
                 const response = await fetch('http://127.0.0.1:5000/testPost',{
                     method: 'POST',
-                    body: JSON.stringify('test'),
+                    // body: JSON.stringify(this.result),
+                    body: data,
                     headers: {
-                        'Content-Type': 'application/json',
-                        'credentials': "include",
+                        'credentials': "same-origin",
                         'Origin': 'http://localhost:5500/'
                     }
                 })
                 .then(function(response) {
                     if (response.status !== 200)
                         console.log(`Looks like there was a problem. Status code: ${response.status}`);
-                    console.log('Posted sucessfully')
+                    else
+                        console.log('Posted sucessfully');
                 });
             }
+
             postImage();
+            
 
             // const userAction = async () => {
             //     const response = await fetch('http://127.0.0.1:5000/test',{
