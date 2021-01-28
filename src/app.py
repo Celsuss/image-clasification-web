@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, flash, redirect, url_for, make_response
+from flask import Flask, render_template, request, flash, redirect, url_for, make_response, jsonify
 from flask_bootstrap import Bootstrap
 import os, time
 import numpy as np
@@ -41,6 +41,13 @@ def index():
 @app.route('/test', methods=['GET'])
 def test():
     return {'Value' : 'Hello World'}
+
+@app.route('/testPost', methods=['POST'])
+def testPost():
+    req = request.get_json()
+    print(req)
+    res = make_response(jsonify({"message": "OK"}), 200)
+    return res
 
 @app.route('/', methods=['POST', 'GET'])
 def process():

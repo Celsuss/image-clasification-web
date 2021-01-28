@@ -17,20 +17,38 @@ inpFile.addEventListener("change", function() {
         reader.addEventListener("load", function(){
             previewImage.setAttribute("src", this.result);
 
-            const userAction = async () => {
-                const response = await fetch('http://127.0.0.1:5000/test',{
-                    method: 'GET',
+            const postImage = async() => {
+                const response = await fetch('http://127.0.0.1:5000/testPost',{
+                    method: 'POST',
+                    body: JSON.stringify('test'),
                     headers: {
                         'Content-Type': 'application/json',
                         'credentials': "include",
                         'Origin': 'http://localhost:5500/'
-                      }
+                    }
+                })
+                .then(function(response) {
+                    if (response.status !== 200)
+                        console.log(`Looks like there was a problem. Status code: ${response.status}`);
+                    console.log('Posted sucessfully')
                 });
-                console.log("waiting");
-                const myJson = await response.json();
-                console.log(myJson);
             }
-            userAction();
+            postImage();
+
+            // const userAction = async () => {
+            //     const response = await fetch('http://127.0.0.1:5000/test',{
+            //         method: 'GET',
+            //         headers: {
+            //             'Content-Type': 'application/json',
+            //             'credentials': "include",
+            //             'Origin': 'http://localhost:5500/'
+            //           }
+            //     });
+            //     console.log("waiting");
+            //     const myJson = await response.json();
+            //     console.log(myJson);
+            // }
+            // userAction();
         });
 
         reader.readAsDataURL(file);
