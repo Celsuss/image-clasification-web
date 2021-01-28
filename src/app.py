@@ -51,10 +51,10 @@ def testPost():
     print('POST')
 
     f = request.files['file']
-    uploadpath = address(f.filename) 
+    uploadpath = address(f.filename)
     f.save(uploadpath)
 
-    res = make_response(jsonify({"message": "OK"}), 200)
+    res = make_response(jsonify({"message": "OK", "prediction": "?"}), 200)
     return res
 
 @app.route('/', methods=['POST', 'GET'])
