@@ -4,7 +4,6 @@ import os, time
 import numpy as np
 import tensorflow as tf
 
-from tools.download_model import download
 from tools.inference import classify, classify_with_quantified
 
 from flask_cors import CORS
@@ -12,13 +11,11 @@ from flask_cors import CORS
 from PIL import Image
 import json
 
+from tools.load_models import load
 
-res_net, mobile_net, x_ception = download()
+models = load()
 
-model = res_net
-
-# interpreter = tf.lite.Interpreter(model_path="./tflite_models/xception_int8.tflite")
-# interpreter.allocate_tensors()
+model = models["resnet50"]
 
 supported_types = ['jpg', 'png', 'tif'] 
 
@@ -48,13 +45,27 @@ def test():
 
 @app.route('/testPost', methods=['POST'])
 def testPost():
-    print('POST')
 
     f = request.files['file']
-    uploadpath = address(f.filename)
-    f.save(uploadpath)
+    if not os.path.exists(uploadDir):
+            os.makedirs(uploadDir) 
+    if f:
+        filename = f.filename
+        if filename.split('.')[-1] in supported_types:
+            uploadpath = address(filename) 
+            f.save(uploadpath) 
+ 
+            pred, t = classify(uploadpath, model)  # classify_with_quantified(uploadpath, interpreter) # classify(uploadpath, model) 
+            
+            _, prediction, probability = pred[0][0]
 
-    res = make_response(jsonify({"message": "OK", "prediction": "?"}), 200)
+            res = make_response(jsonify({"status": "SUCCESS", "prediction": str(prediction), 
+                                    "likelihood": str(probability), "used_time": str(t)}), 200)
+        else:
+            res = make_response(jsonify({"status": "FAIL", "msg": "Unspported image file format"}), 406)
+    else:
+        res = make_response(jsonify({"status": "FAIL", "msg": "No file uploaded"}), 400)
+
     return res
 
 @app.route('/', methods=['POST', 'GET'])
