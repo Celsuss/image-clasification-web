@@ -48,13 +48,27 @@ def test():
 
 @app.route('/testPost', methods=['POST'])
 def testPost():
-    print('POST')
 
     f = request.files['file']
-    uploadpath = address(f.filename)
-    f.save(uploadpath)
+    if not os.path.exists(uploadDir):
+            os.makedirs(uploadDir) 
+    if f:
+        filename = f.filename
+        if filename.split('.')[-1] in supported_types:
+            uploadpath = address(filename) 
+            f.save(uploadpath) 
+ 
+            pred, t = classify(uploadpath, model)  # classify_with_quantified(uploadpath, interpreter) # classify(uploadpath, model) 
+            
+            _, prediction, probability = pred[0][0]
 
-    res = make_response(jsonify({"message": "OK", "prediction": "?"}), 200)
+            res = make_response(jsonify({"status": "SUCCESS", "prediction": str(prediction), 
+                                    "likelihood": str(probability), "used_time": str(t)}), 200)
+        else:
+            res = make_response(jsonify({"status": "FAIL", "msg": "Unspported image file format"}), 406)
+    else:
+        res = make_response(jsonify({"status": "FAIL", "msg": "No file uploaded"}), 400)
+
     return res
 
 @app.route('/', methods=['POST', 'GET'])

@@ -32,9 +32,9 @@ inpFile.addEventListener("change", function() {
                 })
                 .then(function(response) {
                     if (response.status !== 200)
-                        console.log(`Looks like there was a problem. Status code: ${response.status}`);
+                        console.log(`Status code: ${response.status}, error message ${response.body}`);
                     else
-                        console.log('Posted sucessfully');
+                        console.log(`Posted sucessfully, ${response.body}`);
                 });
             }
 
