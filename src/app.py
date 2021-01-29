@@ -4,7 +4,6 @@ import os, time
 import numpy as np
 import tensorflow as tf
 
-from tools.download_model import download
 from tools.inference import classify, classify_with_quantified
 
 from flask_cors import CORS
@@ -12,13 +11,11 @@ from flask_cors import CORS
 from PIL import Image
 import json
 
+from tools.load_models import load
 
-res_net, mobile_net, x_ception = download()
+models = load()
 
-model = res_net
-
-# interpreter = tf.lite.Interpreter(model_path="./tflite_models/xception_int8.tflite")
-# interpreter.allocate_tensors()
+model = models["resnet50"]
 
 supported_types = ['jpg', 'png', 'tif'] 
 
