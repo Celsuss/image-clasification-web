@@ -23,7 +23,6 @@ inpFile.addEventListener("change", function() {
             const postImage = async() => {
                 const response = await fetch('http://127.0.0.1:5000/testPost',{
                     method: 'POST',
-                    // body: JSON.stringify(this.result),
                     body: data,
                     headers: {
                         'credentials': "same-origin",
@@ -37,7 +36,6 @@ inpFile.addEventListener("change", function() {
                         console.log('Posted sucessfully');
                 });
             }
-
             postImage();
             
 
