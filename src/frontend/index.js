@@ -98,7 +98,6 @@ inpFile.addEventListener("change", function() {
                 const response = await fetch('http://127.0.0.1:5000/testPost',{
                     method: 'POST',
                     body : data,
-                    // body: {'file': data, 'model': model},
                     headers: {
                         'credentials': "same-origin",
                         'Origin': 'http://localhost:5500/'
@@ -107,8 +106,9 @@ inpFile.addEventListener("change", function() {
                 .then(function(response) {
                     if (response.status !== 200)
                         console.log(`Status code: ${response.status}, error message ${response.body}`);
-                    else
-                        console.log(`Posted sucessfully, ${response.body}`);
+                    else{
+                        response.json().then(body => console.log(body));
+                    }
                 });
             }
             postImage();
