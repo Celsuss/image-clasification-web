@@ -1,31 +1,19 @@
 from flask import Flask, render_template, request, flash, redirect, url_for, make_response, jsonify
-from flask_bootstrap import Bootstrap
 import os, time
-import numpy as np
-import tensorflow as tf
-
-from tools.inference import classify, classify_with_quantified
-
+from tools.inference import classify
 from flask_cors import CORS
-
-from PIL import Image
-import json
-
 from tools.load_models import load
 
 models = load()
 
-model = models["resnet50"]
-
-supported_types = ['jpg', 'png', 'tif'] 
+supported_types = ['jpg', 'png'] 
 
 app = Flask(__name__) 
 
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 
-bootstrap = Bootstrap(app)
-# app.config['SECRET_KEY'] = os.urandom(24)
+app.config['SECRET_KEY'] = os.urandom(24)
  
 basedir = os.path.abspath(os.path.dirname(__file__))
 uploadDir = os.path.join(basedir, 'static/uploads') 
@@ -37,7 +25,7 @@ def address(filename):
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return {'Value' : 'Welcome'}
 
 @app.route('/test', methods=['GET'])
 def test():
@@ -64,9 +52,14 @@ def testPost():
         if filename.split('.')[-1] in supported_types:
             uploadpath = address(filename) 
             f.save(uploadpath) 
- 
-            pred, t = classify(uploadpath, model)  # classify_with_quantified(uploadpath, interpreter) # classify(uploadpath, model) 
+
+            #TODO: get the which model to run prediction
+            # chosen_model = request.body["model"]
+            chosen_model = "xception_int8"
+
+            pred, t = classify(uploadpath, chosen_model, models[chosen_model]) 
             
+            print(pred, t)
             _, prediction, probability = pred[0][0]
 
             res = make_response(jsonify({"status": "SUCCESS", "prediction": str(prediction), 
@@ -78,27 +71,27 @@ def testPost():
 
     return res
 
-@app.route('/', methods=['POST', 'GET'])
-def process():
-    if request.method == 'POST':
-        f = request.files.get('selectfile') 
-        if not os.path.exists(uploadDir):
-            os.makedirs(uploadDir) 
-        if f:
-            filename = f.filename
-            if filename.split('.')[-1] in supported_types:
-                uploadpath = address(filename) 
-                f.save(uploadpath) 
+# @app.route('/', methods=['POST', 'GET'])
+# def process():
+#     if request.method == 'POST':
+#         f = request.files.get('selectfile') 
+#         if not os.path.exists(uploadDir):
+#             os.makedirs(uploadDir) 
+#         if f:
+#             filename = f.filename
+#             if filename.split('.')[-1] in supported_types:
+#                 uploadpath = address(filename) 
+#                 f.save(uploadpath) 
  
-                pred, t = classify(uploadpath, model)  # classify_with_quantified(uploadpath, interpreter) # classify(uploadpath, model) 
-                flash('Upload Load Successful!', 'SUCESS') 
-                return render_template('index.html', imagename=filename, predvalue=pred, used_time="{} seconds".format(t)) 
-            else:
-                flash('Unsupported File Types!', 'FAIL')
-        else:
-            flash('No File Selected.', 'FAIL')
+#                 pred, t = classify(uploadpath, model)  # classify_with_quantified(uploadpath, interpreter) # classify(uploadpath, model) 
+#                 flash('Upload Load Successful!', 'SUCESS') 
+#                 return render_template('index.html', imagename=filename, predvalue=pred, used_time="{} seconds".format(t)) 
+#             else:
+#                 flash('Unsupported File Types!', 'FAIL')
+#         else:
+#             flash('No File Selected.', 'FAIL')
 
-    return index()
+#     return index()
  
  
 if __name__ == '__main__':
