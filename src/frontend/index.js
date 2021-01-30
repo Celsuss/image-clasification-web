@@ -1,5 +1,14 @@
 // Model selection dropdown
 
+// Populate model selection list
+var para = document.createElement("a");
+para.className = "model_pick";
+var node = document.createTextNode("New model");
+para.appendChild(node);
+
+var element = document.getElementById("modelDropdown");
+element.appendChild(para);
+
 /* When the user clicks on the button,
 toggle between hiding and showing the dropdown content */
 function myFunction() {
@@ -18,6 +27,17 @@ window.onclick = function(event) {
             }
         }
     }
+}
+
+// Listen to which model that is chosen.
+model_pick_elements = document.getElementsByClassName("model_pick");
+for(var i = 0; i < model_pick_elements.length; i++){
+    var model_pick_element = model_pick_elements[i];
+    model_pick_element.addEventListener("click",  function() {
+        // var value = model_pick_element.innerHTML;
+        var value = this.text;
+        console.log("Model picked " + value);
+    });
 }
 
 // Image uploading
