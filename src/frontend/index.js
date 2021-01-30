@@ -72,13 +72,13 @@ window.onclick = function(event) {
 
 // Image uploading
 
-let inpFile = document.getElementById("inputFile");
+const inpFile = document.getElementById("inputFile");
 const previewContainer = document.getElementById("imagePreview");
 const previewImage = previewContainer.querySelector(".image_preview_image");
 const previewDefaultText = previewContainer.querySelector(".image_preview_default_text");
 
 inpFile.addEventListener("change", function() {
-    let file = this.files[0];
+    const file = this.files[0];
 
     if(file){
         console.log("Using model: " + model);
@@ -107,7 +107,15 @@ inpFile.addEventListener("change", function() {
                     if (response.status !== 200)
                         console.log(`Status code: ${response.status}, error message ${response.body}`);
                     else{
-                        response.json().then(body => console.log(body));
+                        console.log("Got response");
+
+                        response.json().then(function(body){
+                            console.log(body);
+                            var result_str = `Prediction: ${body['prediction']}, Probability: ${body['likelihood']}, Time: ${body['used_time']}`;
+                            var esponseText = document.getElementById("resultText").innerHTML = result_str;
+                        });
+
+                        // response.json().then(body => console.log(body));
                     }
                 });
             }
