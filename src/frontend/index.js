@@ -1,5 +1,7 @@
 // Model selection dropdown
 
+var model;
+
 function updateModelPickedList(){
     model_pick_elements = document.getElementsByClassName("model_pick");
     for(var i = 0; i < model_pick_elements.length; i++){
@@ -7,13 +9,14 @@ function updateModelPickedList(){
         model_pick_element.addEventListener("click",  function() {
             var value = this.text;
             console.log("Model picked " + value);
+            model = value;
         });
     }
 }
 
 // Populate model selection list
 function populateModelList(model_list){
-    var element = document.getElementById("modelDropdown");
+    var dropdown_element = document.getElementById("modelDropdown");
 
     for (var i = 0; i < model_list["models"].length; i++){
         var para = document.createElement("a");
@@ -21,7 +24,7 @@ function populateModelList(model_list){
         var node = document.createTextNode(model_list["models"][i]);
         para.appendChild(node);
 
-        element.appendChild(para);
+        dropdown_element.appendChild(para);
     }
 
     updateModelPickedList();
@@ -78,6 +81,7 @@ inpFile.addEventListener("change", function() {
     let file = this.files[0];
 
     if(file){
+        console.log("Using model: " + model);
         const reader = new FileReader();
 
         previewDefaultText.style.display = "none";
@@ -87,12 +91,14 @@ inpFile.addEventListener("change", function() {
             previewImage.setAttribute("src", this.result);
 
             let data = new FormData();
+            data.append('model_name', model);
             data.append('file', file);
 
             const postImage = async() => {
                 const response = await fetch('http://127.0.0.1:5000/testPost',{
                     method: 'POST',
-                    body: data,
+                    body : data,
+                    // body: {'file': data, 'model': model},
                     headers: {
                         'credentials': "same-origin",
                         'Origin': 'http://localhost:5500/'

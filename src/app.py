@@ -43,7 +43,6 @@ def list_model():
     
 @app.route('/testPost', methods=['POST'])
 def testPost():
-
     f = request.files['file']
     if not os.path.exists(uploadDir):
             os.makedirs(uploadDir) 
@@ -55,7 +54,7 @@ def testPost():
 
             #TODO: get the which model to run prediction
             # chosen_model = request.body["model"]
-            chosen_model = "xception_int8"
+            chosen_model = request.form['model_name']
 
             pred, t = classify(uploadpath, chosen_model, models[chosen_model]) 
             
