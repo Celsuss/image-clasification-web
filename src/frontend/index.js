@@ -1,5 +1,16 @@
 // Model selection dropdown
 
+function updateModelPickedList(){
+    model_pick_elements = document.getElementsByClassName("model_pick");
+    for(var i = 0; i < model_pick_elements.length; i++){
+        var model_pick_element = model_pick_elements[i];
+        model_pick_element.addEventListener("click",  function() {
+            var value = this.text;
+            console.log("Model picked " + value);
+        });
+    }
+}
+
 // Populate model selection list
 function populateModelList(model_list){
     var element = document.getElementById("modelDropdown");
@@ -12,6 +23,8 @@ function populateModelList(model_list){
 
         element.appendChild(para);
     }
+
+    updateModelPickedList();
 }
 
 // Get model list
@@ -52,18 +65,6 @@ window.onclick = function(event) {
             }
         }
     }
-}
-
-// Listen to which model that is chosen.
-// TODO: Move to a function and call after models are populated.
-model_pick_elements = document.getElementsByClassName("model_pick");
-for(var i = 0; i < model_pick_elements.length; i++){
-    var model_pick_element = model_pick_elements[i];
-    model_pick_element.addEventListener("click",  function() {
-        // var value = model_pick_element.innerHTML;
-        var value = this.text;
-        console.log("Model picked " + value);
-    });
 }
 
 // Image uploading
