@@ -25,17 +25,14 @@ def classify_with_quantified(uploadpath, modelname, interpreter):
     input_details = interpreter.get_input_details()[0]
     output_details = interpreter.get_output_details()[0]
 
+    input_data = preprocess_data(uploadpath, input_details["shape"][1:], modelname)
+
     if input_details['dtype'] == np.uint8:
         
-        input_data = preprocess_data(uploadpath, input_details["shape"][1:], modelname)[0]
-        # input_data = load_image(uploadpath, input_details["shape"][1:])
         input_scale, input_zero_point = input_details["quantization"]
-        input_data = input_data / input_scale + input_zero_point
+        input_data = input_data[0] / input_scale + input_zero_point
         input_data = np.expand_dims(input_data, axis=0).astype(input_details["dtype"])
     
-    else:
-        input_data = preprocess_data(uploadpath, input_details["shape"][1:], modelname)
-
     interpreter.set_tensor(input_details["index"], input_data)
     interpreter.invoke()
     result = interpreter.get_tensor(output_details["index"])
