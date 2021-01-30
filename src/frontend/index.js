@@ -95,7 +95,7 @@ inpFile.addEventListener("change", function() {
             data.append('file', file);
 
             const postImage = async() => {
-                const response = await fetch('http://127.0.0.1:5000/testPost',{
+                const response = await fetch('http://127.0.0.1:5000/post_image',{
                     method: 'POST',
                     body : data,
                     headers: {
