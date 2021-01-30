@@ -86,6 +86,8 @@ inpFile.addEventListener("change", function() {
 
         previewDefaultText.style.display = "none";
         previewImage.style.display = "block";
+        
+        document.getElementById("resultText").innerHTML = `Running prediction ...`;
 
         reader.addEventListener("load", function(){
             previewImage.setAttribute("src", this.result);
@@ -111,11 +113,10 @@ inpFile.addEventListener("change", function() {
 
                         response.json().then(function(body){
                             console.log(body);
-                            var result_str = `Prediction: ${body['prediction']}, Probability: ${body['likelihood']}, Time: ${body['used_time']}`;
-                            var esponseText = document.getElementById("resultText").innerHTML = result_str;
+                            var result_str = `Prediction: ${body['prediction']}, Probability: ${body['likelihood']}, Time: ${body['used_time']} seconds`;
+                            document.getElementById("resultText").innerHTML = result_str;
                         });
 
-                        // response.json().then(body => console.log(body));
                     }
                 });
             }
