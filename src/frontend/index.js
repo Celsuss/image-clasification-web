@@ -1,13 +1,38 @@
 // Model selection dropdown
 
 // Populate model selection list
-var para = document.createElement("a");
-para.className = "model_pick";
-var node = document.createTextNode("New model");
-para.appendChild(node);
+function populateModelList(model_list){
+    var element = document.getElementById("modelDropdown");
 
-var element = document.getElementById("modelDropdown");
-element.appendChild(para);
+    for (var i = 0; i < model_list["models"].length; i++){
+        var para = document.createElement("a");
+        para.className = "model_pick";
+        var node = document.createTextNode(model_list["models"][i]);
+        para.appendChild(node);
+
+        element.appendChild(para);
+    }
+}
+
+// Get model list
+const fetchModelList = async () => {
+    const response = await fetch('http://127.0.0.1:5000/list_model',{
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'credentials': "include",
+            'Origin': 'http://localhost:5500/'
+            }
+    })
+    .then((response) => response.json())
+    .then((responseData) => {
+          console.log(responseData);
+          populateModelList(responseData);
+        })
+        .catch(error => console.warn(error));
+}
+
+fetchModelList();
 
 /* When the user clicks on the button,
 toggle between hiding and showing the dropdown content */
@@ -30,6 +55,7 @@ window.onclick = function(event) {
 }
 
 // Listen to which model that is chosen.
+// TODO: Move to a function and call after models are populated.
 model_pick_elements = document.getElementsByClassName("model_pick");
 for(var i = 0; i < model_pick_elements.length; i++){
     var model_pick_element = model_pick_elements[i];
