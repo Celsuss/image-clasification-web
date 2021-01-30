@@ -7,6 +7,52 @@
     <title>Test</title>
 
     <style>
+        /* Dropdown Button */
+        .dropbtn {
+            background-color: #3498DB;
+            color: white;
+            padding: 16px;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+        }
+
+        /* Dropdown button on hover & focus */
+        .dropbtn:hover, .dropbtn:focus {
+            background-color: #2980B9;
+        }
+
+        /* The container <div> - needed to position the dropdown content */
+        .model_selection_dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        /* Dropdown Content (Hidden by Default) */
+        .model_selection_dropdown_content {
+            display: none;
+            position: absolute;
+            background-color: #f1f1f1;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+        }
+
+        /* Links inside the dropdown */
+        .model_selection_dropdown_content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+
+        /* Change color of dropdown links on hover */
+        .model_selection_dropdown_content a:hover {background-color: #ddd}
+
+        /* Show the dropdown menu (use JS to add this class to the .model_selection_dropdown_content container when the user clicks on the dropdown button) */
+        .show {display:block;}
+
+        /* Image preview */
         .image_preview {
             width: 300px;
             min-height: 100px;
@@ -29,6 +75,18 @@
 </head>
 <body>
     <h1>Image classification</h1>
+
+    <!-- Model selection -->
+    <div class="model_selection_dropdown">
+        <button onclick="myFunction()" class="dropbtn">Model selection</button>
+        <div id="modelDropdown" class="model_selection_dropdown_content">
+          <a href="#">Link 1</a>
+          <a href="#">Link 2</a>
+          <a href="#">Link 3</a>
+        </div>
+      </div>
+
+    <!-- Image upload -->
     <input type="file" name="inputFile" id="inputFile">
     <div class="image_preview" id="imagePreview">
         <img src="" alt="Image Preview" class="image_preview_image">
