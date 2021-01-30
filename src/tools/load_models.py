@@ -12,8 +12,8 @@ def load():
 
     for tflite_model in os.listdir(PATH_TO_LITE_MODELS):
 
-        if "int8" in tflite_model:
-            continue
+        # if "int8" in tflite_model:
+        #     continue
 
         interpreter = tf.lite.Interpreter(model_path=os.path.join(PATH_TO_LITE_MODELS, tflite_model))
         interpreter.allocate_tensors()
