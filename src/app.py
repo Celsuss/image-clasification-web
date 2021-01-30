@@ -43,6 +43,16 @@ def index():
 def test():
     return {'Value' : 'Hello World'}
 
+@app.route('/list_model', methods=['GET'])
+def list_model():
+
+    supported_models = []
+    for m in models:
+        supported_models.append(m)
+    
+    return make_response(jsonify({"models": supported_models}), 200)
+
+    
 @app.route('/testPost', methods=['POST'])
 def testPost():
 
