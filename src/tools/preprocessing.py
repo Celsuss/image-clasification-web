@@ -2,14 +2,13 @@ import numpy as np
 from tensorflow.keras.preprocessing import image
 from tensorflow.keras.applications.imagenet_utils import preprocess_input
 
-preprocessing_mode = {
+def get_preprocess_mode(modelname):
+
+    preprocessing_mode = {
     "resnet50": "caffe",
     "mobilenet": "tf",
     "xception": "tf"
-
-}
-
-def get_preprocess_mode(modelname):
+    }
 
     for key in preprocessing_mode:
         if key in modelname:
@@ -28,9 +27,13 @@ def preprocess_data(uploadpath, input_shape, modelname):
 
     img_arr = load_image(uploadpath, input_shape)
 
-    x_predict = np.expand_dims(img_arr, axis=0)
+    return process(img_arr, modelname)
 
-    x_predict = preprocess_input(x_predict, mode=get_preprocess_mode(modelname))
+def process(image, modelname):
 
-    return x_predict
+    x = np.expand_dims(image, axis=0)
+
+    x = preprocess_input(x, mode=get_preprocess_mode(modelname))
+
+    return x
 

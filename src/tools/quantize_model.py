@@ -3,15 +3,18 @@ from download_model import download
 import pathlib
 import tensorflow_datasets as tfds
 from tensorflow.keras.applications.imagenet_utils import preprocess_input
+from preprocessing import process
 
 ds = tfds.load('imagenet_v2', split="test")
 
 class representative_data_gen():
-    def __init__(self, shape):
+    def __init__(self, shape, modelname):
         self.shape = shape
+        self.modelname = modelname
     def generator(self):
         for example in ds.batch(1).take(128):
-            yield [tf.image.resize(example["image"], self.shape)]
+            x = process(tf.image.resize(example["image"], self.shape).numpy()[0], self.modelname)
+            yield [x]
 
 def quantize(model, quantize_level, path_to_save):
 
@@ -19,7 +22,7 @@ def quantize(model, quantize_level, path_to_save):
     converter.optimizations = [tf.lite.Optimize.DEFAULT]
     
     if quantize_level == tf.lite.OpsSet.TFLITE_BUILTINS_INT8:
-        gen = representative_data_gen(model.input_shape[1:-1])
+        gen = representative_data_gen(model.input_shape[1:-1], model.name)
         converter.representative_dataset = gen.generator
         converter.target_spec.supported_ops = [quantize_level]
         converter.inference_input_type = tf.uint8
