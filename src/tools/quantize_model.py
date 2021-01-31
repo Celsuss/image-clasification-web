@@ -5,7 +5,7 @@ import tensorflow_datasets as tfds
 from tensorflow.keras.applications.imagenet_utils import preprocess_input
 from preprocessing import process
 
-ds = tfds.load('imagenet_v2', split="test")
+ds = tfds.load('imagenet2012_subset/1pct', split="train")
 
 class representative_data_gen():
     def __init__(self, shape, modelname):
