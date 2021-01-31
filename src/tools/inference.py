@@ -4,10 +4,22 @@ from tensorflow.keras.applications.imagenet_utils import preprocess_input, decod
 from .preprocessing import preprocess_data, load_image
 
 def classify(upload_path, modelname, model):
+    """function to read an image and return prediction result given model
+
+    Args:
+        upload_path (str): path where uploaded image is saved
+        modelname (str): name of the model
+        model (model object): a model object to run inference on
+
+    Returns:
+        [tuple]: pred: the three output with highest likelihood
+                 t: time used to return the result
+    """
 
     start = time.time()
 
     if modelname.endswith("float16") or modelname.endswith("int8"):
+        # if the model is a quantized model
         pred = classify_with_quantified(upload_path, modelname, model)
     
     else:
@@ -21,6 +33,9 @@ def classify(upload_path, modelname, model):
 
 
 def classify_with_quantified(uploadpath, modelname, interpreter):
+    """to run predicition on quantized models
+
+    """
 
     input_details = interpreter.get_input_details()[0]
     output_details = interpreter.get_output_details()[0]
@@ -41,6 +56,9 @@ def classify_with_quantified(uploadpath, modelname, interpreter):
 
 
 def classify_original_model(uploadpath, modelname, model):
+    """to run predicition on tf.keras.Model object
+
+    """
 
     x_predict = preprocess_data(uploadpath, model.input_shape[1:], modelname)
 

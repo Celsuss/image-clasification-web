@@ -37,7 +37,8 @@ def test():
 
 @app.route('/list_model', methods=['GET'])
 def list_model():
-
+    # GET
+    # to return all supported models to run prediction with
     app.logger.info('Return supported model lists')
 
     supported_models = []
@@ -48,7 +49,8 @@ def list_model():
 
 @app.route('/post_image', methods=['POST'])
 def post_image():
-
+    # POST 
+    # function to process uploaded image
     app.logger.info('Processing uploaded image')
 
     f = request.files['file']
@@ -59,7 +61,7 @@ def post_image():
         if filename.split('.')[-1] in supported_types:
             
             app.logger.info('Processing uploaded image and run prediction.')
-
+            # save image to backend local disk
             filename = secure_filename(filename)
             uploadpath = address(filename) 
             f.save(uploadpath) 

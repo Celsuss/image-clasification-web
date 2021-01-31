@@ -4,6 +4,9 @@ from tensorflow.keras.applications.xception import Xception
 
 
 def download(model_dict={}):
+    """download model from tensorflow
+
+    """
 
     res_net = ResNet50(weights="imagenet")
     model_dict["resnet50"] = res_net
