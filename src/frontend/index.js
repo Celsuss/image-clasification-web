@@ -1,5 +1,4 @@
-// Model selection dropdown
-
+// define model as a global variable
 var model;
 
 function updateModelPickedList(){
@@ -106,37 +105,23 @@ inpFile.addEventListener("change", function() {
                     }
                 })
                 .then(function(response) {
-                    if (response.status !== 200)
-                        console.log(`Status code: ${response.status}, error message ${response.body}`);
+                    if (response.status !== 200){
+                        response.json().then(function(body){
+                            console.log(`Status code: ${response.status}, error message ${body["msg"]}`);
+                            document.getElementById("resultText").innerHTML = body["msg"];
+                        });
+                    }
                     else{
                         console.log("Got response");
-
                         response.json().then(function(body){
                             console.log(body);
-                            var result_str = `Prediction: ${body['prediction']}, Probability: ${body['likelihood']}, Time: ${body['used_time']} seconds`;
-                            document.getElementById("resultText").innerHTML = result_str;
+                            document.getElementById("resultText").innerHTML = `Prediction: ${body['prediction']}, Probability: ${body['likelihood']}, Time: ${body['used_time']} seconds`;
                         });
-
                     }
                 });
             }
             postImage();
             
-
-            // const userAction = async () => {
-            //     const response = await fetch('http://127.0.0.1:5000/test',{
-            //         method: 'GET',
-            //         headers: {
-            //             'Content-Type': 'application/json',
-            //             'credentials': "include",
-            //             'Origin': 'http://localhost:5500/'
-            //           }
-            //     });
-            //     console.log("waiting");
-            //     const myJson = await response.json();
-            //     console.log(myJson);
-            // }
-            // userAction();
         });
 
         reader.readAsDataURL(file);
