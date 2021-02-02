@@ -75,10 +75,11 @@
 </head>
 <body>
     <h1>Image classification</h1>
+    <p>Chose a ML model by pressing "Model selection"</p>
 
     <!-- Model selection -->
     <div class="model_selection_dropdown">
-        <button onclick="myFunction()" class="dropbtn">Model selection</button>
+        <button id="modelDropdownBtn" onclick="myFunction()" class="dropbtn">Model selection</button>
         <div id="modelDropdown" class="model_selection_dropdown_content">
             <!-- <li class="black">One</li>
             <li class="black">Two</li>
@@ -95,7 +96,7 @@
       </div>
 
     <!-- Image upload -->
-    <input type="file" name="inputFile" id="inputFile">
+    <input type="file" name="inputFile"id="inputFile">
     <div class="image_preview" id="imagePreview">
         <img src="" alt="Image Preview" class="image_preview_image">
         <span class="image_preview_default_text">Image Preview</span>

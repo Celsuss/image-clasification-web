@@ -3,12 +3,14 @@ var model;
 
 function updateModelPickedList(){
     model_pick_elements = document.getElementsByClassName("model_pick");
+    var dropdown_btn_element = document.getElementById("modelDropdownBtn");
     for(var i = 0; i < model_pick_elements.length; i++){
         var model_pick_element = model_pick_elements[i];
         model_pick_element.addEventListener("click",  function() {
             var value = this.text;
             console.log("Model picked " + value);
             model = value;
+            dropdown_btn_element.innerHTML = value;
         });
     }
 }
