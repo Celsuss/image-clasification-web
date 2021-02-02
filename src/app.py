@@ -29,7 +29,7 @@ def address(filename):
 
 @app.route('/')
 def index():
-    return 'Welcome!'
+    return 'Welcome! This is the start page of backend.'
 
 @app.route('/test', methods=['GET'])
 def test():
