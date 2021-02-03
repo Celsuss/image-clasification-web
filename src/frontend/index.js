@@ -108,7 +108,8 @@ function uploadImage() {
         });
     }
     postImage();
-    document.getElementById("resultText").innerHTML = `Running prediction ...`;
+
+    document.getElementById("resultText").style.display = "block";
 }
 
 inpFile.addEventListener("change", function() {
