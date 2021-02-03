@@ -57,7 +57,7 @@ fetchModelList();
 
 /* When the user clicks on the button,
 toggle between hiding and showing the dropdown content */
-function myFunction() {
+function modelDropdown() {
     document.getElementById("modelDropdown").classList.toggle("show");
 }
   
@@ -80,6 +80,10 @@ const inpFile = document.getElementById("inputFile");
 const previewContainer = document.getElementById("imagePreview");
 const previewImage = previewContainer.querySelector(".image_preview_image");
 const previewDefaultText = previewContainer.querySelector(".image_preview_default_text");
+
+function uploadImage() {
+
+}
 
 inpFile.addEventListener("change", function() {
     const file = this.files[0];
