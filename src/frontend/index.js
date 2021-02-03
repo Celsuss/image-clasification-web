@@ -1,4 +1,7 @@
-// define model as a global variable
+// Global elements
+const imageUploadContainer = document.getElementById("imageUploadAndPreview");
+
+// Global variables
 var model;
 
 function updateModelPickedList(){
@@ -11,6 +14,7 @@ function updateModelPickedList(){
             console.log("Model picked " + value);
             model = value;
             dropdown_btn_element.innerHTML = value;
+            imageUploadContainer.style.display = "block";
         });
     }
 }
@@ -72,7 +76,6 @@ window.onclick = function(event) {
 }
 
 // Image uploading
-
 const inpFile = document.getElementById("inputFile");
 const previewContainer = document.getElementById("imagePreview");
 const previewImage = previewContainer.querySelector(".image_preview_image");

@@ -52,6 +52,12 @@
         /* Show the dropdown menu (use JS to add this class to the .model_selection_dropdown_content container when the user clicks on the dropdown button) */
         .show {display:block;}
 
+        /* Image upload including image preview */
+        .image_upload_and_preview {
+            margin-top: 14px;
+            display: none;
+        }
+
         /* Image preview */
         .image_preview {
             width: 300px;
@@ -75,7 +81,7 @@
 </head>
 <body>
     <h1>Image classification</h1>
-    <p>Chose a ML model by pressing "Model selection"</p>
+    <p><b>Chose a ML model by pressing "Model selection".</b></p>
 
     <!-- Model selection -->
     <div class="model_selection_dropdown">
@@ -95,14 +101,17 @@
         </div>
       </div>
 
+    <div class="image_upload_and_preview" id="imageUploadAndPreview">
+        <p><b>Chose a model to you want to classify.</b></p>
     <!-- Image upload -->
-    <input type="file" name="inputFile"id="inputFile">
-    <div class="image_preview" id="imagePreview">
-        <img src="" alt="Image Preview" class="image_preview_image">
-        <span class="image_preview_default_text">Image Preview</span>
-    </div>
+        <input type="file" name="inputFile"id="inputFile">
+        <div class="image_preview" id="imagePreview">
+            <img src="" alt="Image Preview" class="image_preview_image">
+            <span class="image_preview_default_text">Image Preview</span>
+        </div>
 
-    <p id="resultText" class="result_text">Result: </p>
+        <p id="resultText" class="result_text">Result: </p>
+    </div>
 
     <script src="index.js"></script>
     
