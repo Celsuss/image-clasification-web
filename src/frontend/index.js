@@ -3,6 +3,7 @@ const imageUploadContainer = document.getElementById("imageUploadAndPreview");
 
 // Global variables
 var model;
+var data;
 
 function updateModelPickedList(){
     model_pick_elements = document.getElementsByClassName("model_pick");
@@ -65,8 +66,7 @@ function modelDropdown() {
 window.onclick = function(event) {
     if (!event.target.matches('.dropbtn')) {
         var dropdowns = document.getElementsByClassName("model_selection_dropdown_content");
-        var i;
-        for (i = 0; i < dropdowns.length; i++) {
+        for (var i = 0; i < dropdowns.length; i++) {
             var openDropdown = dropdowns[i];
             if (openDropdown.classList.contains('show')) {
                 openDropdown.classList.remove('show');
@@ -82,7 +82,33 @@ const previewImage = previewContainer.querySelector(".image_preview_image");
 const previewDefaultText = previewContainer.querySelector(".image_preview_default_text");
 
 function uploadImage() {
-
+    const postImage = async() => {
+        const response = await fetch('http://127.0.0.1:5000/post_image',{
+            method: 'POST',
+            body : data,
+            headers: {
+                'credentials': "same-origin",
+                'Origin': 'http://localhost:5500/'
+            }
+        })
+        .then(function(response) {
+            if (response.status !== 200){
+                response.json().then(function(body){
+                    console.log(`Status code: ${response.status}, error message ${body["msg"]}`);
+                    document.getElementById("resultText").innerHTML = body["msg"];
+                });
+            }
+            else{
+                console.log("Got response");
+                response.json().then(function(body){
+                    console.log(body);
+                    document.getElementById("resultText").innerHTML = `Prediction: ${body['prediction']}, Probability: ${body['likelihood']}, Time: ${body['used_time']} seconds`;
+                });
+            }
+        });
+    }
+    postImage();
+    document.getElementById("resultText").innerHTML = `Running prediction ...`;
 }
 
 inpFile.addEventListener("change", function() {
@@ -94,43 +120,13 @@ inpFile.addEventListener("change", function() {
 
         previewDefaultText.style.display = "none";
         previewImage.style.display = "block";
-        
-        document.getElementById("resultText").innerHTML = `Running prediction ...`;
 
         reader.addEventListener("load", function(){
             previewImage.setAttribute("src", this.result);
 
-            let data = new FormData();
+            data = new FormData();
             data.append('model_name', model);
             data.append('file', file);
-
-            const postImage = async() => {
-                const response = await fetch('http://127.0.0.1:5000/post_image',{
-                    method: 'POST',
-                    body : data,
-                    headers: {
-                        'credentials': "same-origin",
-                        'Origin': 'http://localhost:5500/'
-                    }
-                })
-                .then(function(response) {
-                    if (response.status !== 200){
-                        response.json().then(function(body){
-                            console.log(`Status code: ${response.status}, error message ${body["msg"]}`);
-                            document.getElementById("resultText").innerHTML = body["msg"];
-                        });
-                    }
-                    else{
-                        console.log("Got response");
-                        response.json().then(function(body){
-                            console.log(body);
-                            document.getElementById("resultText").innerHTML = `Prediction: ${body['prediction']}, Probability: ${body['likelihood']}, Time: ${body['used_time']} seconds`;
-                        });
-                    }
-                });
-            }
-            postImage();
-            
         });
 
         reader.readAsDataURL(file);
