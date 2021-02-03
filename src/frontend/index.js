@@ -16,6 +16,8 @@ function updateModelPickedList(){
             model = value;
             dropdown_btn_element.innerHTML = value;
             imageUploadContainer.style.display = "block";
+
+            document.getElementById("resultText").style.display = "none";
         });
     }
 }
@@ -116,6 +118,9 @@ inpFile.addEventListener("change", function() {
     const file = this.files[0];
 
     if(file){
+        document.getElementById("resultText").style.display = "none";
+        document.getElementById("resultText").innerHTML = `Running prediction ...`;
+
         console.log("Using model: " + model);
         const reader = new FileReader();
 
