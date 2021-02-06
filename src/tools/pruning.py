@@ -21,40 +21,21 @@ from tensorflow.keras import layers, optimizers, losses, callbacks
 import numpy as np
 import tensorflow_model_optimization as tfmot
 import tempfile
-from transfer import load_cifar
 from tensorflow.keras.applications.mobilenet import MobileNet
 from tensorflow.keras.applications.imagenet_utils import preprocess_input
-# retrain_model = "resnet_cifar10.h5"
-
-# model = tf.keras.models.load_model(retrain_model)
-
-# x_train, y_train, x_validation, y_validation,x_test, y_test = load_cifar()
-
-# def evaluate(model, x_train, y_train, x_validation, y_validation,x_test, y_test):
-    
-#     train = model.evaluate(x_train, y_train)
-#     validation = model.evaluate(x_validation, y_validation)
-#     test = model.evaluate(x_test, y_test)
-
-#     return train, validation, test
-
-# print(model.summary())
-# print("baseline performance with {} parameters".format(model.count_params()))
-# print(evaluate(model, x_train, y_train, x_validation, y_validation,x_test, y_test))
 import tensorflow_datasets as tfds
-# ds = tfds.load('imagenet2012_subset/10pct', split="validation")
-from pathlib import Path
 
-# ds = MyDataset()
+# ds_tr = tfds.load('imagenet2012_subset/1pct', split="train").repeat().prefetch(1)
+# ds_val = tfds.load('imagenet2012_subset/1pct', split="validation").repeat().prefetch(1)
 
-ds_tr = tfds.load('imagenet_resized/64x64', split="train")
-ds_val = tfds.load('imagenet_resized/64x64', split="validation")
+ds_tr = tfds.load('imagenet2012', split="train")
+ds_val = tfds.load('imagenet2012', split="validation")
 
 batch_size = 64
 epochs = 10
 n_classes = 1000
-
-output_path = "retrain_mobilenet.h5"
+train_size = 600000
+validation_size = 50000
 
 class representative_data_gen():
     # to generate TF dataset for quantizing int8 models
@@ -63,16 +44,24 @@ class representative_data_gen():
         self.modelname = modelname
         self.ds = ds
         self.size = size
-    def generator(self):
 
-        for example in self.ds.batch(batch_size).take(self.size // batch_size):   
-        # for example in self.ds.batch(batch_size).take(1):   
-              
-            x, y = example["image"], example["label"]
-            x = preprocess_input(tf.image.resize(example["image"], self.shape).numpy(), mode="tf")
-            y = tf.keras.utils.to_categorical(example["label"], n_classes)
-            yield x, y
-            # yield x, tf.keras.utils.to_categorical(example["label"], n_classes)         
+    def generator(self):
+        x = np.zeros((batch_size, *self.shape, 3))
+        y = np.zeros((batch_size, n_classes))
+        while True:
+            count = 0 
+            for example in self.ds.shuffle(self.size):
+                x[count % batch_size] = preprocess_input(tf.image.resize(example["image"], self.shape).numpy(), mode="tf")
+                y[count % batch_size] = np.expand_dims(tf.keras.utils.to_categorical(example["label"], num_classes=n_classes), 0)
+                count += 1
+                if (count % batch_size == 0):
+                    yield x, y
+        # while True:
+        #     for example in self.ds.shuffle(self.size):
+        #         x, y = example["image"], example["label"]
+        #         x = preprocess_input(tf.image.resize(example["image"], self.shape).numpy(), mode="tf")
+        #         y = tf.keras.utils.to_categorical(example["label"], n_classes)
+        #         yield x, y
 
 
 with mirrored_strategy.scope():
@@ -82,62 +71,69 @@ with mirrored_strategy.scope():
     output_shape = ((batch_size, *model.input_shape[1:]), (batch_size, n_classes))
     output_type = (tf.float32, tf.int32)
 
-    gen_tr = representative_data_gen(model.input_shape[1:-1], "mobilenet", ds_tr, size=600000)
+    gen_tr = representative_data_gen(model.input_shape[1:-1], "mobilenet", ds_tr, size=train_size)
     training_generator = gen_tr.generator
-    training_tf_generator = tf.data.Dataset.from_generator(training_generator, output_shapes=output_shape, output_types=output_type)
+    training_tf_generator = tf.data.Dataset.from_generator(training_generator, output_shapes=output_shape, output_types=output_type).take(train_size // batch_size)
 
-    gen_val = representative_data_gen(model.input_shape[1:-1], "mobilenet", ds_val, size=50000)
+    gen_val = representative_data_gen(model.input_shape[1:-1], "mobilenet", ds_val, size=validation_size)
     val_generator = gen_val.generator
-    val_tf_generator = tf.data.Dataset.from_generator(val_generator, output_shapes=output_shape, output_types=output_type)
+    val_tf_generator = tf.data.Dataset.from_generator(val_generator, output_shapes=output_shape, output_types=output_type).take(validation_size // batch_size)
 
     model.compile(optimizer=optimizers.Adam(lr=0.001), 
                 loss='categorical_crossentropy', metrics=['accuracy'])
 
-    callback = [callbacks.ModelCheckpoint(output_path, verbose=1, save_best_only=True),
-                callbacks.EarlyStopping(patience=5)]
+    train_acc = model.evaluate(training_tf_generator, workers=64,
+               use_multiprocessing=True)
+    val_acc = model.evaluate(val_tf_generator, workers=64,
+               use_multiprocessing=True)
 
-    history = model.fit(training_tf_generator, epochs=epochs, batch_size=batch_size, 
-                    callbacks=callback, validation_data=val_tf_generator)
+    with open("result.log", "w") as f:
 
-# print(model.evaluate(training_tf_generator))
+        f.write("original model performance with parameter, train acc {}, val acc {}\n".format(model.count_params(), train_acc[1], val_acc[1]))
 
+    prune_low_magnitude = tfmot.sparsity.keras.prune_low_magnitude
 
-training_tf_generator = tf.data.Dataset.from_generator(training_generator, output_shapes=output_shape, output_types=output_type)
-# validation_tf_generator = tf.data.Dataset.from_generator(validation_generator.tf_generator, output_shapes=output_shape, output_types=output_type)
-
-prune_low_magnitude = tfmot.sparsity.keras.prune_low_magnitude
-
-end_step = np.ceil(50000 / batch_size).astype(np.int32) * epochs
-pruning_params = {
+    end_step = np.ceil(600000 / batch_size).astype(np.int32) * epochs
+    pruning_params = {
       'pruning_schedule': tfmot.sparsity.keras.PolynomialDecay(initial_sparsity=0.50,
                                                                final_sparsity=0.80,
                                                                begin_step=0,
                                                                end_step=end_step)
-}
+    }
 
-model_for_pruning = prune_low_magnitude(model, **pruning_params)
+    model_for_pruning = prune_low_magnitude(model, **pruning_params)
 
-# `prune_low_magnitude` requires a recompile.
-model_for_pruning.compile(optimizer=optimizers.Adam(lr=2e-5), 
+    # `prune_low_magnitude` requires a recompile.
+    model_for_pruning.compile(optimizer=optimizers.Adam(lr=2e-5), 
                 loss='categorical_crossentropy', metrics=['accuracy'])
-print(model.summary())
-print(model_for_pruning.summary())
-logdir = tempfile.mkdtemp()
 
-callback = [
-  tfmot.sparsity.keras.UpdatePruningStep(),
-  tfmot.sparsity.keras.PruningSummaries(log_dir=logdir),
-]
+    print(model.summary())
+    print(model_for_pruning.summary())
+    logdir = tempfile.mkdtemp()
 
-history = model_for_pruning.fit(training_tf_generator, epochs=epochs, batch_size=batch_size, 
-                    callbacks=callback)
+    callback = [
+    tfmot.sparsity.keras.UpdatePruningStep(),
+    tfmot.sparsity.keras.PruningSummaries(log_dir=logdir),
+    ]
 
+    history = model_for_pruning.fit(training_tf_generator, epochs=epochs, batch_size=batch_size, 
+                    callbacks=callback, validation_data=val_tf_generator, workers=64,
+                    use_multiprocessing=True)
 
-print("pruned performance with {} parameters".format(model_for_pruning.count_params()))
-evaluate(model_for_pruning, x_train, y_train, x_validation, y_validation,x_test, y_test)
+    print("pruned performance with {} parameters".format(model_for_pruning.count_params()))
 
-model_for_export = tfmot.sparsity.keras.strip_pruning(model_for_pruning)
+    model_for_export = tfmot.sparsity.keras.strip_pruning(model_for_pruning)
 
-_, pruned_keras_file = tempfile.mkstemp('.h5')
-tf.keras.models.save_model(model_for_export, pruned_keras_file, include_optimizer=False)
-print('Saved pruned Keras model to:', pruned_keras_file)
+    _, pruned_keras_file = tempfile.mkstemp('.h5')
+    tf.keras.models.save_model(model_for_export, pruned_keras_file, include_optimizer=False)
+    print('Saved pruned Keras model to:', pruned_keras_file)
+
+    train_acc_prune = model.evaluate(training_tf_generator, workers=64,
+               use_multiprocessing=True)
+    eval_acc_prune = model.evaluate(val_tf_generator, workers=64,
+               use_multiprocessing=True)
+
+    with open("result.log", "a") as f:
+
+        f.write("original model performance with parameter, train acc {}, val acc {}\n".format(model_for_pruning.count_params(), train_acc_prune[1], eval_acc_prune[1]))
+
