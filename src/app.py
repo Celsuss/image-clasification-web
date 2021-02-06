@@ -6,6 +6,8 @@ from flask_cors import CORS
 from tools.load_models import load
 
 models = load()
+import tensorflow as tf
+models["mobilenet_pruned"] = tf.keras.models.load_model("../mobilenet_pruned.h5")
 
 supported_types = ['jpg', 'png'] 
 
@@ -59,22 +61,22 @@ def post_image():
     if f:
         filename = f.filename
         if filename.split('.')[-1] in supported_types:
-            
-            app.logger.info('Processing uploaded image and run prediction.')
             # save image to backend local disk
+            app.logger.info('Processing uploaded image and run prediction.')
+
             filename = secure_filename(filename)
             uploadpath = address(filename) 
             f.save(uploadpath) 
 
             chosen_model = request.form['model_name']
 
-            pred, t = classify(uploadpath, chosen_model, models[chosen_model]) 
+            label, score, t = classify(uploadpath, chosen_model, models[chosen_model]) 
             
-            print(pred, t)
-            _, prediction, probability = pred[0][0]
+            print(label, score, t)
 
-            res = make_response(jsonify({"status": "SUCCESS", "prediction": str(prediction), 
-                                    "likelihood": str(probability), "used_time": str(t)}), 200)
+            body = {"status": "SUCCESS", "label": label, "score": score, "used_time": str(t)}
+            
+            res = make_response(body, 200)
         else:
             app.logger.info('Upload image file format is not supported.')
             res = make_response(jsonify({"status": "FAIL", "msg": "Unspported image file format"}), 406)

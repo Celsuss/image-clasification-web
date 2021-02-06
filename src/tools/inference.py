@@ -15,28 +15,45 @@ def classify(upload_path, modelname, model):
         [tuple]: pred: the three output with highest likelihood
                  t: time used to return the result
     """
-
     start = time.time()
 
     if modelname.endswith("float16") or modelname.endswith("int8"):
-        # if the model is a quantized model
         pred = classify_with_quantified(upload_path, modelname, model)
     
     else:
         pred = classify_original_model(upload_path, modelname, model)
 
-    pred = decode_predictions(pred, top=3)
+    label, score = decode(decode_predictions(pred, top=5))
 
     end = time.time()
+    
+    return label, score, end - start
 
-    return pred, end - start
 
+def decode(prediction):
+    """decode prediction into label and score list
+
+    Args:
+        prediction ([type]): result from tensorflow decode_predictions
+
+    Returns:
+        [label]: a list of predictions, order by score
+        [score]: a list of corresponding score, order by DESC
+    """
+
+    label = []
+    score = []
+    for res in prediction[0]:
+        _, l, s = res
+        label.append(l)
+        score.append(str(s))
+    
+    return label, score
 
 def classify_with_quantified(uploadpath, modelname, interpreter):
     """to run predicition on quantized models
 
     """
-
     input_details = interpreter.get_input_details()[0]
     output_details = interpreter.get_output_details()[0]
 

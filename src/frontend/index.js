@@ -1,6 +1,6 @@
 // Global elements
 const imageUploadContainer = document.getElementById("imageUploadAndPreview");
-
+const resultTable = document.getElementById('resultTable');
 // Global variables
 var model;
 var data;
@@ -18,6 +18,7 @@ function updateModelPickedList(){
             imageUploadContainer.style.display = "block";
 
             document.getElementById("resultText").style.display = "none";
+            resultTable.style.display = "none";
         });
     }
 }
@@ -104,14 +105,47 @@ function uploadImage() {
                 console.log("Got response");
                 response.json().then(function(body){
                     console.log(body);
-                    document.getElementById("resultText").innerHTML = `Prediction: ${body['prediction']}, Probability: ${body['likelihood']}, Time: ${body['used_time']} seconds`;
+                    document.getElementById("resultText").innerHTML = 'Results:';
+                    tableCreate(body['label'], body['score']);
+                    resultTable.style.display = "block";
                 });
             }
         });
     }
     postImage();
 
-    document.getElementById("resultText").style.display = "block";
+    document.getElementById("resultText").style.display = "block"; 
+
+    function tableCreate(label, score){
+        // clean up the old table
+        while(resultTable.hasChildNodes())
+        {
+            resultTable.removeChild(resultTable.firstChild);
+        }
+
+        var columns = ["#", "Label", "Score"];
+        // create new table 
+        for(var i = 0; i < label.length+1; i++){
+            var tr = resultTable.insertRow();
+            for(var j = 0; j < 3; j++){
+                if(i == 0){
+                    var td = tr.insertCell();
+                    td.appendChild(document.createTextNode(columns[j]));
+                } else {
+                var td = tr.insertCell();
+                if (j == 0){
+                    td.appendChild(document.createTextNode(i));
+                }
+                else if(j == 1){
+                    td.appendChild(document.createTextNode(label[i-1]));
+                }else{
+                    td.appendChild(document.createTextNode(score[i-1].substring(0,5)));
+                }
+            }
+            td.style.border = '1px solid black';
+            }
+        }
+    }
 }
 
 inpFile.addEventListener("change", function() {
@@ -120,6 +154,7 @@ inpFile.addEventListener("change", function() {
     if(file){
         document.getElementById("resultText").style.display = "none";
         document.getElementById("resultText").innerHTML = `Running prediction ...`;
+        resultTable.style.display = "none";
 
         console.log("Using model: " + model);
         const reader = new FileReader();

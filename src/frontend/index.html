@@ -78,9 +78,17 @@
             width: 100%;
         }
 
-        .result_text{
+        .result_text {
             display: none;
         }
+
+        .result_table {
+            display: table;
+            border-collapse: collapse;
+            border-color: gray;
+            width: 100%;
+        }
+
     </style>
 </head>
 <body>
@@ -105,6 +113,8 @@
 
         <button id="imagePredictionBtn" onclick="uploadImage()" class="predictionbtn">Classify image</button>
         <p id="resultText" class="result_text">Running prediction</p>
+
+        <table id="resultTable" class="result_table"></table>
     </div>
 
     <script src="index.js"></script>
