@@ -10,3 +10,5 @@ venv/
 src/static/uploads/
 
 *.log
+
+logs/

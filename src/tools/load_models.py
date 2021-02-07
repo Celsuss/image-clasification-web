@@ -8,18 +8,20 @@ def load():
     Returns:
         [dict]: {"$modelname": model_object}
     """
-
     models = {}
 
     res_net, mobile_net, x_ception = download(model_dict=models)
 
-    PATH_TO_LITE_MODELS = "./tflite_models/"
+    PATH_TO_MODELS = "./processed_models/"
 
-    for tflite_model in os.listdir(PATH_TO_LITE_MODELS):
+    for model in os.listdir(PATH_TO_MODELS):
 
-        interpreter = tf.lite.Interpreter(model_path=os.path.join(PATH_TO_LITE_MODELS, tflite_model))
-        interpreter.allocate_tensors()
+        if model.endswith(".tflite"):
+            interpreter = tf.lite.Interpreter(model_path=os.path.join(PATH_TO_MODELS, model))
+            interpreter.allocate_tensors()
 
-        models[tflite_model.split(".")[0]] = interpreter
+            models[model.split(".")[0]] = interpreter
+        else:
+            models[model.split(".")[0]] = tf.keras.models.load_model(os.path.join(PATH_TO_MODELS, model))
     
     return models

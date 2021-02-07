@@ -6,8 +6,6 @@ from flask_cors import CORS
 from tools.load_models import load
 
 models = load()
-import tensorflow as tf
-models["mobilenet_pruned"] = tf.keras.models.load_model("../mobilenet_pruned.h5")
 
 supported_types = ['jpg', 'png'] 
 
